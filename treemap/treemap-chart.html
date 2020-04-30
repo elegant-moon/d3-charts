@@ -1,0 +1,178 @@
+<html>
+  <head>
+    <style>
+      .node {
+        /* font-size: 9pt;
+        font-family: Arial, Helvetica, sans-serif;
+        line-height: 250%; */
+        overflow: hidden;
+        position: absolute;
+        /* text-indent: 10px; */
+
+        font-family: Veneer;
+        font-style: normal;
+        font-weight: normal;
+        font-size: 24px;
+        line-height: 100%;
+        color: #4F4F4F;
+      }
+
+      .sub-rect {
+        background-color: #fff;
+        z-index: 999;
+        opacity: .5;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+      }
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.6/d3.min.js"></script>
+  </head>
+  <body>
+    <div class="treemap"></div>
+    <script>
+      var categories = [
+        { name: 'Food & Nutrition', value: 926, value2: 29, color: '#7FAB8C' },
+        { name: 'Movement', value: 908, value2: 20, color: '#86BB8B' },
+        { name: 'Humanitarian', value: 782, value2: 59, color: '#7CD485' },
+        { name: 'Civil & Political Rights', value: 1595, value2: 4, color: '#73E3AD' },
+        { name: 'Governance & Rule of Law', value: 6930, value2: 120, color: '#44D6CD' },
+        { name: 'Violence', value: 1054, value2: 279, color: '#65ABC9' },
+        { name: 'Social & Cultural Rights', value: 1090, value2: 63, color: '#678BC1' },
+        { name: 'Equality & Inclusion', value: 5039, value2: 443, color: '#69A9DD' },
+        { name: 'Environment', value: 239, value2: 7, color: '#9998CC' },
+        { name: 'Health', value: 1292, value2: 95, color: '#988ED4' },
+        { name: 'Poverty', value: 304, value2: 30, color: '#C877DC' },
+        { name: 'Gender', value: 1060, value2: 378, color: '#CF6CD1' },
+        { name: 'Education', value: 617, value2: 107, color: '#EA7699' },
+        { name: 'Economic Rights', value: 283, value2: 27, color: '#E96666' },
+        { name: 'Water & Sanitation', value: 344, value2: 15, color: '#E18551' },
+        { name: 'Harmful Practices', value: 150, value2: 54, color: '#E8DB6E' },
+      ];
+
+      // categories = categories.map((c, i) => ({ name: c.name + ', ' + i + ', ' + c.value + ', ' + c.value2 }));
+      // function compare(a, b) {
+      //   let comparison = 0;
+      //   if (a.value > b.value) {
+      //     comparison = 1;
+      //   } else if (a.value < b.value) {
+      //     comparison = -1;
+      //   }
+      //   return comparison;
+      // }
+
+      // categories.sort(compare);
+      // console.log(categories);
+
+      var data = {
+        name: 'cluster',
+        children: categories,
+      };
+
+      var color = d3.scale.category20c();
+
+      var treemap = d3.layout
+        .treemap()
+        // use 100 x 100 px, which we'll apply as % later
+        .size([100, 100])
+        .sticky(true)
+        .sort(function(a,b) {
+          return a.value - b.value;
+        })
+        // .value2(function(d) {
+        //   return d.value;
+        // });
+
+      var div = d3.select('.treemap');
+
+      function position() {
+        this.style('left', function(d) {
+          return 'calc(' + d.x + '% + ' + '4px';
+        })
+        .style('top', function(d) {
+          return 'calc(' + d.y + '% + ' + '4px';
+        })
+        .style('width', function(d) {
+          return 'calc(' + d.dx + '% - ' + '8px)';
+        })
+        .style('height', function(d) {
+          return 'calc(' + d.dy + '% - ' + '8px)';
+        });
+      }
+
+      function getLabel(d) {
+        var rate = Math.ceil((d.value2 / d.value) * 100);
+        return d.name + ': ' + rate + '%';
+      }
+
+      var node = div
+        .datum(data)
+        .selectAll('.node')
+        .data(treemap.nodes)
+        .enter()
+        .append('div')
+        .attr('class', 'node')
+        .call(position)
+        .style('background', function(d) {
+          return d.color;
+        })
+        .style('border-radius', '4px')
+        // .text(getLabel);
+
+      node.append('div')
+      .style('padding', '10px')
+      .text(getLabel)
+
+      node.append('div')
+      .attr('class', 'sub-rect')
+      // .style('position', 'absolute')
+      // .style('top', function(d){
+      //   if ( d.value2 < 50){
+      //     return '0';
+      //   }
+      //   else {
+      //     return 'unset';
+      //   }
+      // })
+      // .style('bottom', function(d){
+      //   if ( d.value2 < 50){
+      //     return 'unset';
+      //   }
+      //   else {
+      //     return '0';
+      //   }
+      // })
+      // .style('left', function(d){
+      //   if ( d.value2 < 50){
+      //     return '0';
+      //   }
+      //   else {
+      //     return 'unset';
+      //   }
+      // })
+      // .style('right', function(d){
+      //   if ( d.value2 < 50){
+      //     return 'unset';
+      //   }
+      //   else {
+      //     return '0';
+      //   }
+      // })
+      .style('width', function(d){
+        var rate = Math.sqrt(d.value / d.value2);
+        var x = this.parentNode.getBoundingClientRect().width / rate;
+
+        return x+'px';
+      })
+      .style('height', function(d){
+        var rate = Math.sqrt(d.value / d.value2);
+        var y = this.parentNode.getBoundingClientRect().height / rate;
+
+        return y + 'px';
+      })
+      .style('border-radius', '4px')
+
+    </script>
+  </body>
+</html>
